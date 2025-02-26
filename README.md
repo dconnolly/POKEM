@@ -1,6 +1,6 @@
 # POKÉ
 
-A SageMath proof-of-concept implementation of the isogeny-based public-key encryption protocol POKÉ, accompanying the research paper (https://eprint.iacr.org/2024/624)[POKÉ: A Compact and Efficient PKE from Higher-dimensional Isogenies] by Andrea Basso and Luciano Maino.
+A SageMath proof-of-concept implementation of the isogeny-based public-key encryption protocol POKÉ, accompanying the research paper [POKÉ: A Compact and Efficient PKE from Higher-dimensional Isogenies](https://eprint.iacr.org/2024/624) by Andrea Basso and Luciano Maino.
 
 The implementation relies on the SageMath implementation of (2, 2)-isogenies by Dartois, Maino, Pope, and Robert [1].
 
