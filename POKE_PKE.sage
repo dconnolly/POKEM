@@ -104,7 +104,7 @@ def random_unit(modulus):
 
     return alpha
 
-def KFD(X, Y):
+def KDF(X, Y):
     return X.__hash__() ^^ Y.__hash__()
 
 
@@ -361,7 +361,7 @@ for i, lambda_ in enumerate([128, 192, 256]):
 
         X_AB, Y_AB = d1*X_AB + d2*Y_AB, d3*X_AB + d4*Y_AB
             
-        return EB.curve(), P2_B, Q2_B, X_B, Y_B, EAB, P2_AB, Q2_AB, m ^^ KFD(X_AB[0], Y_AB[0])
+        return EB.curve(), P2_B, Q2_B, X_B, Y_B, EAB, P2_AB, Q2_AB, m ^^ KDF(X_AB[0], Y_AB[0])
 
 
 
@@ -385,7 +385,7 @@ for i, lambda_ in enumerate([128, 192, 256]):
         X_AB *= delta
         Y_AB *= delta
 
-        return ct_ ^^ KFD(X_AB[0], Y_AB[0])
+        return ct_ ^^ KDF(X_AB[0], Y_AB[0])
 
     N = 100 # number of iterations
     tt = [0, 0, 0]
