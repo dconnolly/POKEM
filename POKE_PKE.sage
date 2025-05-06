@@ -1,5 +1,7 @@
 import random
 import time
+from hashlib import sha3_256
+from os import urandom
 
 from montgomery_isogenies.kummer_line import KummerLine
 from montgomery_isogenies.kummer_isogeny import KummerLineIsogeny
@@ -104,9 +106,21 @@ def random_unit(modulus):
 
     return alpha
 
-def KDF(X, Y):
-    return X.__hash__() ^^ Y.__hash__()
+def xor_bytes(a: bytes, b: bytes) -> bytes:
+    """
+    Compute the XOR of two byte arrays
+    """
+    assert len(a) == len(b)
+    return bytes(x ^^ y for (x, y) in zip(a, b))
 
+def KDF(X, Y):
+    """
+    A simple key-derivation function which computes a cryptographic hash
+    of two byte encoded elements of Fp2
+    """
+    X_bytes = X.to_bytes()
+    Y_bytes = Y.to_bytes() 
+    return sha3_256(X_bytes + Y_bytes).digest()
 
 def random_matrix(modulus):
     while True:
@@ -360,8 +374,13 @@ for i, lambda_ in enumerate([128, 192, 256]):
             Y_AB = -Y_AB
 
         X_AB, Y_AB = d1*X_AB + d2*Y_AB, d3*X_AB + d4*Y_AB
+
+        # A key is derived from the x-coordinates of X_AB, Y_AB and the ciphertext
+        # is computed as key XOR msg (assumes the message has len 32)
+        key = KDF(X_AB[0], Y_AB[0])
+        ct = xor_bytes(m, key)
             
-        return EB.curve(), P2_B, Q2_B, X_B, Y_B, EAB, P2_AB, Q2_AB, m ^^ KDF(X_AB[0], Y_AB[0])
+        return EB.curve(), P2_B, Q2_B, X_B, Y_B, EAB, P2_AB, Q2_AB, ct
 
 
 
@@ -385,14 +404,19 @@ for i, lambda_ in enumerate([128, 192, 256]):
         X_AB *= delta
         Y_AB *= delta
 
-        return ct_ ^^ KDF(X_AB[0], Y_AB[0])
+        # A key is derived from the x-coordinates of X_AB, Y_AB and the message is
+        # recovered from key XOR ct = key XOR (key XOR msg) = msg
+        key = KDF(X_AB[0], Y_AB[0])
+        pt = xor_bytes(ct_, key)
+
+        return pt
 
     N = 100 # number of iterations
     tt = [0, 0, 0]
     correct = 0
 
     for _ in range(N):
-        m = random.randint(0, 2^128 - 1)
+        m = os.urandom(32)
         
         t0 = time.time_ns()
         sk, pk = keygenA()
