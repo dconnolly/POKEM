@@ -108,8 +108,9 @@ def random_unit(modulus):
 
 def xof_kdf(X, Y):
     """
-    A simple key-derivation function which computes a cryptographic hash
-    of two byte encoded elements of Fp2
+    A simple key-derivation function which initalised an XOF from two
+    finite field elements. A key is intended to then be derived from
+    this by requesting len(key) bytes, see meth:xof_encrypt
     """
     X_bytes = X.to_bytes()
     Y_bytes = Y.to_bytes() 
@@ -118,7 +119,7 @@ def xof_kdf(X, Y):
 def xof_encrypt(xof, msg):
     """
     Compute the XOR encryption of a message by sampling
-    a key from an XOF.
+    len(msg) bytes from a suitible XOF.
     """
     key = xof.digest(len(msg))
     return bytes(x ^^ y for (x, y) in zip(key, msg))
